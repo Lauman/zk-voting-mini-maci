@@ -1,0 +1,26 @@
+type PollClosed @entity(immutable: true) {
+  id: Bytes!
+  pollId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PollCreated @entity(immutable: true) {
+  id: Bytes!
+  pollId: BigInt! # uint256
+  merkleRoot: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type VoteCast @entity(immutable: true) {
+  id: Bytes!
+  pollId: BigInt! # uint256
+  vote: BigInt! # uint256
+  nullifier: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "ZKMultiPollVoting": {
+      "address": "0x981eC850dB2BFFBa0Aebe75C066fcBfaa8397fbA",
+      "startBlock": 10182945
+    }
+  }
+}
