@@ -76,7 +76,7 @@ contract ZKMultiPollVoting is Ownable {
     function createPoll(uint256 pollId, bytes32 merkleRoot) external onlyOwner {
         Poll storage poll = polls[pollId];
         
-        if (!poll.active) {
+        if (poll.active) {
             revert PollAlreadyExists();
         }
         if (merkleRoot == bytes32(0)) {

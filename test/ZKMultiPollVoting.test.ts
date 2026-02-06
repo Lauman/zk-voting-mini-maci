@@ -52,7 +52,7 @@ describe("ZKMultiPollVoting", function () {
     verifier = await Verifier.deploy()
 
     const Voting = await ethers.getContractFactory("ZKMultiPollVoting")
-    voting = await Voting.deploy(await verifier.getAddress())
+    voting = await Voting.deploy(await verifier.getAddress(),owner.address)
   })
 
   /*//////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ describe("ZKMultiPollVoting", function () {
   it("prevents non-owner from creating poll", async () => {
     await expect(
       voting.connect(user).createPoll(POLL_ID, MERKLE_ROOT)
-    ).to.be.revertedWith("Not owner")
+    ).to.be.revertedWithCustomError(voting,"OwnableUnauthorizedAccount")
   })
 
   it("closes a poll", async () => {
@@ -120,7 +120,7 @@ describe("ZKMultiPollVoting", function () {
         PROOF,
         PUBLIC_SIGNALS
       )
-    ).to.be.revertedWith("Nullifier already used")
+    ).to.be.revertedWithCustomError(voting,"NullifierAlreadyUsed")
   })
 
   it("rejects invalid ZK proof", async () => {
@@ -155,7 +155,7 @@ describe("ZKMultiPollVoting", function () {
         PROOF,
         PUBLIC_SIGNALS
       )
-    ).to.be.revertedWith("Invalid ZK proof")
+    ).to.be.revertedWithCustomError(voting,"InvalidProof")
   })
 
   it("rejects vote on inactive poll", async () => {
@@ -167,7 +167,7 @@ describe("ZKMultiPollVoting", function () {
         PROOF,
         PUBLIC_SIGNALS
       )
-    ).to.be.revertedWith("Poll not active")
+    ).to.be.revertedWithCustomError(voting,"PollNotActive")
   })
 
   it("rejects invalid vote option", async () => {
@@ -181,6 +181,6 @@ describe("ZKMultiPollVoting", function () {
         PROOF,
         PUBLIC_SIGNALS
       )
-    ).to.be.revertedWith("Invalid vote")
+    ).to.be.revertedWithCustomError(voting,"InvalidVoteOption")
   })
 })
