@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
 /// @notice Interface del verifier generado por circom/snarkjs
 interface IVerifier {
     function verifyProof(
@@ -11,7 +13,7 @@ interface IVerifier {
     ) external view returns (bool);
 }
 
-contract ZKMultiPollVoting {
+contract ZKMultiPollVoting is Ownable {
     /*//////////////////////////////////////////////////////////////
                                 STRUCTS
     //////////////////////////////////////////////////////////////*/
@@ -40,7 +42,6 @@ contract ZKMultiPollVoting {
     mapping(address => mapping(bytes32 => bool)) public usedNullifiers;
 
     IVerifier public immutable verifier;
-    address public owner;
 
     /*//////////////////////////////////////////////////////////////
                                 EVENTS
@@ -51,21 +52,21 @@ contract ZKMultiPollVoting {
     event VoteCast(uint256 indexed pollId, uint256 vote, bytes32 nullifier);
 
     /*//////////////////////////////////////////////////////////////
-                                MODIFIERS
+                                ERRORS
     //////////////////////////////////////////////////////////////*/
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
-        _;
-    }
-
+      error PollAlreadyExists();
+      error InvalidMerkleRoot();
+      error PollNotActive();
+      error InvalidVoteOption();
+      error NullifierAlreadyUsed();
+      error InvalidProof();
     /*//////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(address _verifier) {
+    constructor(address _verifier,address initialOwner) Ownable(initialOwner) {
         verifier = IVerifier(_verifier);
-        owner = msg.sender;
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -74,9 +75,13 @@ contract ZKMultiPollVoting {
 
     function createPoll(uint256 pollId, bytes32 merkleRoot) external onlyOwner {
         Poll storage poll = polls[pollId];
-
-        require(!poll.active, "Poll already exists");
-        require(merkleRoot != bytes32(0), "Invalid root");
+        
+        if (!poll.active) {
+            revert PollAlreadyExists();
+        }
+        if (merkleRoot == bytes32(0)) {
+            revert InvalidMerkleRoot();
+        }
 
         polls[pollId] = Poll({
             merkleRoot: merkleRoot,
@@ -91,7 +96,9 @@ contract ZKMultiPollVoting {
     function closePoll(uint256 pollId) external onlyOwner {
         Poll storage poll = polls[pollId];
 
-        require(poll.active, "Poll not active");
+        if (!poll.active) {
+            revert PollNotActive();
+        }
 
         poll.active = false;
 
@@ -118,9 +125,15 @@ contract ZKMultiPollVoting {
     ) external {
         Poll storage poll = polls[pollId];
 
-        require(poll.active, "Poll not active");
-        require(voteOption == 0 || voteOption == 1, "Invalid vote");
-        require(!usedNullifiers[msg.sender][nullifier], "Nullifier already used");
+        if (!poll.active) {
+            revert PollNotActive();
+        }
+        if (voteOption != 0 && voteOption != 1) {
+            revert InvalidVoteOption();
+        }
+        if (usedNullifiers[msg.sender][nullifier]) {
+            revert NullifierAlreadyUsed();
+        }
 
         // Verify ZK proof
         bool valid = verifier.verifyProof(
@@ -129,7 +142,9 @@ contract ZKMultiPollVoting {
             proof.c,
             publicSignals
         );
-        require(valid, "Invalid ZK proof");
+        if (!valid) {
+            revert InvalidProof();
+        }
 
         // Mark nullifier as used
         usedNullifiers[msg.sender][nullifier] = true;
