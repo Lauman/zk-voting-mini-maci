@@ -4,11 +4,11 @@
 # Define the source and destination file pairs in an associative array.
 # Key: Source file path
 # Value: Destination file path
-ROOTPATH="../../../"
+ROOTPATH="../"
 declare -A FILES_TO_COPY=(
     ["verification_key.json"]="${ROOTPATH}frontend/public/zk/vote_circuit_key.json"
-    ["zKLogin_0001.zkey"]="${ROOTPATH}frontend/public/zk/vote_circuit_final.zkey"
-    ["zKLogin_js/zKLogin.wasm"]="${ROOTPATH}frontend/public/zk/vote_circuit.wasm"
+    ["vote_circuit_0001.zkey"]="${ROOTPATH}frontend/public/zk/vote_circuit_final.zkey"
+    ["vote_circuit_js/vote_circuit.wasm"]="${ROOTPATH}frontend/public/zk/vote_circuit.wasm"
     ["verifier.sol"]="${ROOTPATH}contracts/Groth16Verifier.sol"
     # Add more pairs here
 )

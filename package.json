@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile-contracts": "pnpm hardhat build",
-    "compile-circuits": "cd circuits/zk_login_circuits/circom && ./compile_circuit.sh zKLogin && ./copy_circuits.sh",
+    "compile-circuits": "cd circuits && ./compile_circuit.sh vote_circuit vote_circuit && ./copy_circuits.sh",
+    "start-subgraph": "cd subgraph && pnpm run codegen && pnpm run build && pnpm run deploy",
     "start:front": "cd frontend && pnpm run dev"
   },
   "keywords": [],
