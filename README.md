@@ -107,7 +107,7 @@ Frontend application built with:
 - wagmi + viem
 - snarkjs
 - @zk-kit/imt
-- Helia / web3.storage (IPFS)
+- storacha (IPFS)
 
 ### Frontend Responsibilities
 
